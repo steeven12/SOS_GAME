@@ -1,0 +1,95 @@
+scores = [0,0]
+board = []
+player = 1
+i = 0
+j = 0
+l = ""
+n = 6
+lines = []
+
+def newBoard(n):
+     board = ([[0 for i in range(n)] for j in range(n)])
+     return board
+
+def possibleSquare(board,n,i,j):
+     return (0 <= i < n) and (0 <= j < n) and (board[i][j] == 0)
+
+def updateScoreS(board,n,i,j,scores,player,lines):
+    if (board[i][j] == 1):
+
+        if (i <= n - 3 and j >= 0 and board[i + 1][j] == 2 and board[i + 2][j] == 1):
+            lines.append([(i, j), (i + 2, j)])
+            scores[player - 1] += 1
+
+        if (i >= 0 and j <= n - 3 and board[i][j + 1] == 2 and board[i][j + 2] == 1):
+            lines.append([(i, j), (i, j + 2)])
+            scores[player -1] += 1
+
+        if (i>= 0 and j >= 2 and board[i][j-1] == 2 and board[i][j-2] == 1):
+            lines.append([(i, j), (i, j - 2)])
+            scores[player -1] += 1
+
+        if (i >=2 and j >=0 and board[i-1][j] == 2 and board[i-2][j] == 1):
+            lines.append([(i, j), (i - 2, j)])
+            scores[player - 1] += 1
+
+        if (i <= n - 3 and j <= n - 3 and board[i + 1][j + 1] == 2 and board[i + 2][j + 2] == 1):
+            lines.append([(i, j), (i + 2, j + 2)])
+            scores[player - 1] += 1
+
+        if (i <= n - 3 and j >= 2 and board[i + 1][j - 1] == 2 and board[i + 2][j - 2] == 1):
+            scores[player - 1] += 1
+            lines.append([(i, j), (i + 2, j - 2)])
+
+        if (i >= 2 and j <= n - 3 and board[i - 1][j + 1] == 2 and board[i - 2][j + 2] == 1):
+            scores[player - 1] += 1
+            lines.append([(i, j), (i - 2, j + 2)])
+
+        if (i >= 2 and j >= 2 and board[i - 1][j - 1] == 2 and board[i - 2][j - 2] == 1):
+            scores[player - 1] += 1
+            lines.append([(i, j), (i - 2, j - 2)])
+
+
+def updateScoreO(board,n,i,j,score,player,lines):
+    if (board[i][j] == 2):
+        if (i>=0 and 1<= j <= n-2):
+            if board[i][j - 1] == 1:
+                if board[i][j + 1] == 1:
+                    score[player - 1] += 1
+                    lines.append([(i,j - 1),(i,j + 1)])
+
+        if (j>=0 and 1<= i <= n-2):
+            if board[i + 1][j] == 1:
+                if board[i - 1][j] == 1:
+                    score[player - 1] += 1
+                    lines.append([(i - 1,j),(i + 1,j)])
+
+        if (1<= j <= n-2 and 1<= i <= n-2):
+            if board[i + 1][j + 1] == 1:
+                if board[i - 1][j - 1] == 1:
+                    score[player - 1] += 1
+                    lines.append([(i + 1,j + 1),(i - 1,j - 1)])
+
+        if (1<= j <= n-2 and 1<= i <= n-2):
+            if board[i - 1][j + 1 ] == 1:
+                if board[i + 1][j - 1] == 1:
+                    score[player - 1] += 1
+                    lines.append([(i - 1,j + 1), (i + 1,j - 1)])
+
+def update(board,n,i,j,l,scores,player,lines):
+    if l == "S":
+        board[i][j] = 1
+    else:
+        board[i][j] = 2
+
+def winner(scores):
+    if scores[0] > scores[1]:
+        string = "The winner is BLUE !!"
+
+    elif scores[1] > scores[0]:
+        string = "The winner is RED !!"
+
+    else :
+        string = "DRAW GAME !!"
+
+    return string
