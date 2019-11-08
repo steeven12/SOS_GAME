@@ -1,0 +1,177 @@
+import pygame
+from sys import exit
+from sosAlgorithms import *
+pygame.init()
+mySurface = pygame.display.set_mode((1500,1000))
+mySurface.fill((220,220,245))
+pygame.display.set_caption("SOS")
+run = True
+scoreBlue = 0
+scoreRed = 0
+fontBlue = pygame.font.SysFont('comicsans', 50, True, True)
+fontRed = pygame.font.SysFont('comicsans', 50, True, True)
+string = ""
+count = 0
+playerColor = [(0, 0, 255),(255, 0, 0)]
+
+def drawBoard(mySurface, n):
+    pygame.draw.rect(mySurface,(128,128,128),(100,100,600,600))
+    for i in range(n + 1):
+        for j in range(n + 1):
+            pygame.draw.line(mySurface,(255,255,255), (100, (i + 1) * 100), ((n + 1) * 100, (i + 1) * 100), 2)
+            pygame.draw.line(mySurface, (255,255,255), ((j + 1) * 100, 100), ((j + 1) * 100, (n + 1) * 100), 2)
+
+    for i in range(n + 1):
+        for j in range(n + 1):
+            if i > 0 and j > 0:
+                rect = pygame.Rect(i * 102 - 2*(i-1), j * 102 - 2*(j-1), 50, 98)
+                pygame.draw.rect(mySurface, (192, 192, 192), rect)
+                DrawS = fontBlue.render("S",1, (255, 255, 0))
+                mySurface.blit(DrawS, (i * 110 - 10*(i-1), j * 130 - 30*(j-1)))
+                DrawO = fontBlue.render("O", 1, (128, 255, 0))
+                mySurface.blit(DrawO, (i * 160 - 60 * (i - 1), j * 130 - 30 * (j - 1)))
+
+    pygame.display.update()
+
+def displayScore(mySurface,n,scores):
+    if l != " ":
+        rect = pygame.Rect(850,300, 50, 80)
+        pygame.draw.rect(mySurface, (220,220,245), rect)
+        ScoreTextBlue = fontBlue.render("Blue: " + str(scores[0]), 1, (0, 0, 255))
+        mySurface.blit(ScoreTextBlue, (740,300))
+
+        rect = pygame.Rect(840, 500, 50, 80)
+        pygame.draw.rect(mySurface, (220, 220, 245), rect)
+        ScoreTextRed = fontRed.render("Red: " + str(scores[1]), 1, (255, 0, 0))
+        mySurface.blit(ScoreTextRed, (740, 500))
+    pygame.display.update()
+
+def displayPlayer(mySurface,n,player):
+    if player == 1:
+        DrawArrow = fontBlue.render("<--", 1, (0, 0, 255))
+        mySurface.blit(DrawArrow, (910, 300))
+        DrawArrowBlack = fontBlue.render("<--", 1, (220,220,245))
+        mySurface.blit(DrawArrowBlack, (910, 500))
+
+    if player == 2:
+        DrawArrow = fontRed.render("<--", 1, (255, 0, 0))
+        mySurface.blit(DrawArrow, (910, 500))
+        DrawArrowBlack = fontBlue.render("<--", 1, (220,220,245))
+        mySurface.blit(DrawArrowBlack, (910, 300))
+
+    pygame.display.update()
+
+def selectSquare(mySurface,board,n):
+    incorrect = True
+    while incorrect:
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                x, y = event.pos
+                i = (y - 100) // 100
+                j = (x - 100) // 100
+
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                color = mySurface.get_at((mouse_x, mouse_y))
+                if (color != (0, 0, 0, 255) and color != (255, 0, 0, 255) and color != (0, 0, 255, 255)):
+                    if (color == (192, 192, 192, 255) or color == (255,255,0,255)):
+                        l = "S"
+                    elif (color == (128, 128, 128, 255) or color == (128, 255, 0, 255)):
+                        l = "O"
+                    else:
+                        l = " "
+                    return (i,j,l)
+
+def drawCell(mySurface,board,i,j,player):
+    if (l != " "):
+        if player == 1:
+            rect = pygame.Rect((j+1) * 101 - 1*(j-1), (i+1) * 101 - 1*(i-1), 97, 97)
+            pygame.draw.rect(mySurface, (63,224,208), rect)
+            ScoreTextBlue = fontBlue.render(""+l, 1, (0, 0, 255))
+            mySurface.blit(ScoreTextBlue, ((j + 1) * 100 + 35, (i + 1) * 100 + 30))
+            pygame.display.update()
+
+        if player == 2:
+            rect = pygame.Rect((j + 1) * 101 - 1 * (j - 1), (i + 1) * 101 - 1 * (i - 1), 97, 97)
+            pygame.draw.rect(mySurface, (63,224,208), rect)
+            ScoreTextBlue = fontBlue.render("" + l, 1, (255, 0, 0))
+            mySurface.blit(ScoreTextBlue, ((j + 1) * 100 + 35, (i + 1) * 100 + 30))
+            pygame.display.update()
+
+        update(board, n, i, j, l, scores, player, lines)
+
+def changePlayer(player):
+    global scoreBlue
+    global scoreRed
+    if (l != " ") and scoreBlue >= scores[0] and scoreRed >= scores[1]:
+        if player == 1 :
+            player = 2
+
+        elif player == 2:
+            player = 1
+    scoreBlue = scores[0]
+    scoreRed = scores[1]
+
+
+
+    return (player)
+
+def drawLines(mySurface,lines,player):
+    lines = []
+    updateScoreS(board, n, i, j, scores, player, lines)
+    updateScoreO(board, n, i, j, scores, player, lines)
+    for x in range (len(lines)):
+        if lines !=[] and l != " " :
+            point1 = lines[x][0][0]
+            point2 = lines[x][0][1]
+            point3 = lines[x][1][0]
+            point4 = lines [x][1][1]
+            pygame.draw.line(mySurface, playerColor[player-1], ((point2+1)*100 + 50, (point1+1)*100 + 50), ((point4+1)*100 + 50, (point3+1)*100 +50), 3)
+            pygame.display.update()
+
+def displayWinner(mySurface,n,scores):
+    string = winner(scores)
+    ScoreTextBlue = fontBlue.render(string, 1, (47, 79, 79))
+    mySurface.blit(ScoreTextBlue, (900, 410))
+
+def GameOver(count):
+    for i in range(len(board)):
+            for j in range (len(board)):
+                if (board[i][j] != 0):
+                    count = count + 1
+    return count
+
+def gamePlay(mySurface,board,n,scores):
+    global player
+    global l
+    global i
+    global j
+    global lines
+    displayPlayer(mySurface, 6, player)
+    i, j, l = selectSquare(mySurface, board, 6)
+    drawCell(mySurface, board, i, j, player)
+    drawLines(mySurface, lines, player)
+    displayScore(mySurface, 6, scores)
+
+board = newBoard(6)
+
+def SOS(n):
+    global run
+    global player
+    drawBoard(mySurface,6)
+    displayScore(mySurface, 6, scores)
+    while run:
+        for event in pygame.event.get():
+            pygame.time.delay(50)
+            gamePlay(mySurface, board, n, scores)
+            player = changePlayer(player)
+            pygame.display.update()
+            if GameOver(count) == 36:
+                run = False
+            lines = []
+
+    displayWinner(mySurface, n, scores)
+    pygame.display.update()
+    pygame.time.delay(5000)
+    pygame.quit()
+
+SOS(6)
